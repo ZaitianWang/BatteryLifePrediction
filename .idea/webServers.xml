@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="d3cfa2e1-8a4b-4c96-9871-b891a7d0ca6d" name="V100 (2)(项目级别)">
+        <fileTransfer accessType="SFTP" host="10.0.82.38" port="22" sshConfigId="ab1f38a8-a611-4fd2-a4fb-a8e9222fcfef" sshConfig="guoshipeng@10.0.82.38:22 password" />
+      </webServer>
+      <webServer id="6ffb9bb0-25af-4ee0-ba78-6f2f542a8cde" name="A100 (2)(项目级别)">
+        <fileTransfer accessType="SFTP" host="10.0.87.17" port="22" sshConfigId="6020e08c-d266-450a-bc5b-a2867a35ba6a" sshConfig="A100" />
+      </webServer>
+      <webServer id="00f551af-c2e2-4965-b494-6143da180998" name="A100 (3)(项目级别)">
+        <fileTransfer accessType="SFTP" host="10.0.87.17" port="22" sshConfigId="6020e08c-d266-450a-bc5b-a2867a35ba6a" sshConfig="A100" />
+      </webServer>
+    </option>
+  </component>
+</project>

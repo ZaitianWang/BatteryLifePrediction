@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="A100 (6)" createEmptyFolders="true" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" confirmBeforeDeletion="false">
+    <option name="confirmBeforeDeletion" value="false" />
+    <option name="confirmBeforeUploading" value="false" />
+    <serverData>
+      <paths name="A100">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/guoshipeng/BLP" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="A100 (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/guoshipeng/BLP" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="A100 (3)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/guoshipeng/BLP" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="A100 (6)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/guoshipeng/BLP" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="A100 (7)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/guoshipeng/BLP" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="A100 (8)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/guoshipeng/BLP" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="V100">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/guoshipeng/BLP" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="V100 (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/BLP" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
