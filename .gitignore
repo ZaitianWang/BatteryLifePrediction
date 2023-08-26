@@ -1,3 +1,7 @@
 *.mat
 *.pkl
-test.*
+*.pth
+*.pt
+*.log
+mytest.*
+__pycache__
