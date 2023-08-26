@@ -1,9 +1,11 @@
+import sys
+sys.path.append('/home/wangzaitian/work/2307/battery/BatteryLifePrediction')
+from utils import *
 import argparse
 import random
 
 from torch.utils.data import DataLoader
 from layer.Net import *
-from utils import *
 import time
 
 torch.set_num_threads(2)
@@ -48,6 +50,9 @@ def generate_train_data(batch, label):
 
 def train(nni_params, dir_path):
     device = 'cuda:' + str(nni_params['cuda_index']) if torch.cuda.is_available() else 'cpu'
+    dir_path = dir_path + get_date_time_second_string()
+    os.mkdir(dir_path)
+    logger = init_log(dir_path + '/predict.log')
     dataset = pickle.load(open(nni_params['dataset_path'], 'rb'))
     train_dataset, early_dataset, test_dataset = dataset['train_dataset'], dataset['early_dataset'], dataset[
         'test_dataset']
@@ -77,6 +82,7 @@ def train(nni_params, dir_path):
     print(sum(p.numel() for p in model.parameters()) / 10000)
     optimizer = torch.optim.Adam(model.parameters(), lr=nni_params['lr'])
     min_loss = 10
+    logger.info("loading data from " + nni_params['dataset_path'])
     for e in range(nni_params['epoch']):
         total_loss = []
         begin_time = time.time()
@@ -97,21 +103,23 @@ def train(nni_params, dir_path):
             loss.backward()
             optimizer.step()
         t_loss = np.mean(total_loss)
-        print(e, '| 耗时(s) ：', time.time() - begin_time, "train loss : ", t_loss)
-        if t_loss < min_loss:
+        print(e, '| 耗时(s) ：', time.time() - begin_time, "train loss contrastive : ", t_loss*100)
+        logger.info(
+            'epoch:{}, train_loss_contrastive: {} | '.format(e, t_loss*100))
+        if t_loss*10 < min_loss:
             min_loss = t_loss
-            torch.save(model.state_dict(), dir_path + '/cl_model' + '.pt')
+            torch.save(model.state_dict(), dir_path + '/cl_model' + '.pth')
             print('model saved! ')
 
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Battery Life Predict')
     parser.add_argument('--lr', type=float, default=1e-5)
-    parser.add_argument('--cuda_index', type=int, default=1)
-    parser.add_argument('--epoch', type=int, default=1000)
-    parser.add_argument('--batch_size', type=int, default=90)
-    parser.add_argument('--dataset_path', type=str, default='../data/dataset_1.pkl')
-    parser.add_argument('--path', type=str, default='../save/')
+    parser.add_argument('--cuda_index', type=int, default=3)
+    parser.add_argument('--epoch', type=int, default=500)
+    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--dataset_path', type=str, default='dataset/pkl_data/FastCharge/d&c_no_split_data.pkl')
+    parser.add_argument('--path', type=str, default='save/')
     parser.add_argument('--d_model', type=int, default=32)
     # parser.add_argument('--pretrain_epoch', type=int, default=10)
     args, _ = parser.parse_known_args()

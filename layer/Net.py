@@ -123,6 +123,9 @@ class JoinModel(nn.Module):
 
     def forward(self, x):
         return self.base_model(x)
+    
+    def encode(self, x):
+        return self.base_model.encode(x)
 
     def contrastive_loss(self, q_im, label):
         threshold = 40
@@ -133,7 +136,8 @@ class JoinModel(nn.Module):
         arc = q_im[:1]
         neg = q_im[label_diff > threshold]
         pos = q_im[label_diff <= threshold][-1:]
-
+        # TODO -1: the last one, change to the closest one
+        # print(arc.shape, pos.shape, neg.shape)
         l_pos = torch.einsum('nc,nc->n', [arc, pos]).unsqueeze(-1)
         l_neg = torch.einsum('nc,ck->nk', [arc, neg.T])
         logits = torch.cat([l_pos, l_neg], dim=1)
@@ -143,12 +147,14 @@ class JoinModel(nn.Module):
 
 
 class Trans(nn.Module):
-    def __init__(self, c_len):
+    def __init__(self, feature_num):
         super(Trans, self).__init__()
-        self.feature_embed = 500
-        self.cycle_feature_num = c_len
+        # self.feature_embed = 500
+        self.feature_embed = 1024
+        self.cycle_feature_num = feature_num # typically 5~10
         self.d_model = 512
         self.dropout = 0.1
+
         self.pos = PositionalEncoding(self.d_model)
         self.embed = nn.Sequential(
             nn.Linear(self.feature_embed, self.d_model),
@@ -170,23 +176,36 @@ class Trans(nn.Module):
         self.fc = nn.Linear(self.d_model, 1)
 
     def encode(self, x1, ):
+        # [batch, 5, 100, 1024]
         x1 = x1.permute(0, 2, 3, 1)  # [b,window,feature_embed,feature_num]
+        # [batch, 100, 1024, 5]
         x1 = self.pooler(x1)
+        # [batch, 100, 1024, 1]
         x1 = self.embed(x1.squeeze(-1))
+        # [batch, 100, 1024]
+        # [batch, 100, 512]
         output = self.pos(x1)
+        # [batch, 100, 512]
         output = torch.mean(self.encoder(output), dim=1)
+        # [batch, 100, 512]
+        # [batch, 512]
         return self.mlp(output)
+        # [batch, 512]
 
     def forward(self, x1):
+        # [batch, 5, 100, 1024]
         out = self.fc(self.encode(x1)).squeeze()
+        # [batch, 512]
+        # [batch, 1]
+        # [batch]
         return out
 
 
 class CNN(nn.Module):
-    def __init__(self, c):
+    def __init__(self, feature_num):
         super(CNN, self).__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(8, 16, kernel_size=3),
+            nn.Conv2d(feature_num, 16, kernel_size=3),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=3),
             nn.Conv2d(16, 32, kernel_size=3),

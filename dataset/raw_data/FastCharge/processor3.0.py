@@ -3,14 +3,16 @@
 提取 充电电压，放电电压，充电电流，放电电流，充电温度，放电温度，充电内阻，放电内阻
 Qdlin，Tdlin
 """
-import pickle
-import random
-import torch
-import numpy as np
+import sys
+sys.path.append('/home/wangzaitian/work/2307/battery/BatteryLifePrediction')
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 from scipy.interpolate import interp1d
 from src.AEDataset import myDataset
+import pickle
+import random
+import torch
+import numpy as np
 
 First = 5
 MaxTIME = 60
@@ -111,11 +113,8 @@ def process(datadict):
                 print(j)
                 continue
 
-            # else:
-            # print(battery_num, j, np.max(time))
-            # remove stop
-
             c, v, t, time, qc, qd = keep_increasing_np(c, v, t, time, qc, qd)
+
             q = qc - qd
             _v, _c, _t, _q, _time, mask = pad_array([v, c, t, q, time], True, MaxTIME)  # 将时间pad，其余变量用最后一个值填充
             _v, _c, _t, _q, _time = interpolate_array([_v, _c, _t, _q, _time])  # 按照时间将其他变量对齐
@@ -171,6 +170,7 @@ def process(datadict):
             # 'charge_temperature': charge_temperature,
             # 'charge_time': charge_time,
             # 'charge_mask': charge_mask,
+
             "delta_Q": delta_Q,
             "delta_V": delta_V,
             'ir': np.divide(np.array(discharge_voltage), np.array(discharge_current),
@@ -195,13 +195,13 @@ def gen_dataset(data, name):
         print(i, "<<", LIFE[i])
     print('waiting..')
     window, shift = 100, 10  # 窗口大小和移动步长
+
     # feature1 = ['discharge_voltage', 'discharge_current']
     # feature1 = ['discharge_voltage', 'discharge_current','discharge_Q']
     # feature1 = ['discharge_voltage', 'discharge_current','discharge_Q','ir']
     # feature1 = ['discharge_voltage', 'discharge_current', 'discharge_Q', 'ir', 'delta_Q']
     # feature1 = ['discharge_voltage', 'discharge_current', 'discharge_Q', 'ir', 'delta_Q', 'delta_V']
     # feature1 = ['discharge_voltage', 'discharge_current', 'discharge_Q', 'ir', 'delta_Q', 'delta_V', 'delta_time']
-
     feature1 = ['discharge_voltage', 'discharge_Q', 'discharge_current', 'discharge_time', 'discharge_temperature', ]
     feature2 = ['IR']
 
@@ -265,8 +265,8 @@ def gen_dataset(data, name):
 
 if __name__ == '__main__':
     print('process data...')
-    path = '../../../data/d&c_no_split_data.pkl'
+    path = 'dataset/pkl_data/FastCharge/d&c_no_split_data.pkl'
     print(path.split('/')[-1])
-    dataset = pickle.load(open('dataset.pkl', 'rb'))
+    dataset = pickle.load(open('dataset/pkl_data/FastCharge/dataset.pkl', 'rb'))
     del dataset[15]
     gen_dataset(process(dataset), path)

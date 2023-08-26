@@ -1,3 +1,4 @@
+from sklearn.model_selection import train_test_split
 import os.path
 import random
 import logging
@@ -7,19 +8,20 @@ import torch
 import pickle
 import datetime
 
-from sklearn.model_selection import train_test_split
 from torch import nn
 from src.AEDataset import AEDataset, PreDataset
 from tqdm import tqdm
 
 
 def get_date_time_second_string():
-    r = random.randint(1, 100)
+    r = random.randint(10, 100)
     now = datetime.datetime.now()
-    date_string = now.strftime("%Y-%m-%d")
-    time_string = now.strftime("%H:%M")
-    second_string = str(now.second)
-    result_string = f"{date_string}, {time_string}, {second_string}" + str(r)
+    # date_string = now.strftime("%Y-%m-%d")
+    # time_string = now.strftime("%H:%M")
+    # second_string = str(now.second)
+    # result_string = f"{date_string}, {time_string}, {second_string}" + str(r)
+    # YYYY-MM-DDTHH:MM:SS
+    result_string = now.strftime("%Y-%m-%dT%H:%M:%S") + str(r)
     return result_string
 
 

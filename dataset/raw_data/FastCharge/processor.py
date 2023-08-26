@@ -25,7 +25,7 @@ def p1(matFilename):
         summary_CY = np.hstack(f[batch['summary'][i, 0]]['cycle'][0, :].tolist())
         summary = {'IR': summary_IR, 'QC': summary_QC, 'QD': summary_QD, 'Tavg':
             summary_TA, 'Tmin': summary_TM, 'Tmax': summary_TX, 'chargetime': summary_CT,
-                   'cycle': summary_CY}
+                    'cycle': summary_CY}
         cycles = f[batch['cycles'][i, 0]]
         cycle_dict = {}
         for j in range(cycles['I'].shape[0]):
@@ -49,12 +49,13 @@ def p1(matFilename):
 
 
 if __name__ == '__main__':
+    pathname = 'dataset/raw_data/FastCharge/'
     filename = ['2017-05-12_batchdata_updated_struct_errorcorrect.mat',
                 '2017-06-30_batchdata_updated_struct_errorcorrect.mat',
                 '2018-04-12_batchdata_updated_struct_errorcorrect.mat']
-    batch1 = p1(filename[0])
-    batch2 = p1(filename[1])
-    batch3 = p1(filename[2])
+    batch1 = p1(pathname + filename[0])
+    batch2 = p1(pathname + filename[1])
+    batch3 = p1(pathname + filename[2])
 
     # remove batteries that do not reach 80% capacity
     del batch1['b1c8']
@@ -107,5 +108,5 @@ if __name__ == '__main__':
     for i in batch3:
         dataset[count] = batch3[i]
         count += 1
-    with open('dataset.pkl', 'wb') as f:
+    with open('dataset/pkl_data/FastCharge/dataset.pkl', 'wb') as f:
         pickle.dump(dataset, f)

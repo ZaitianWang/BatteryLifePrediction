@@ -3,18 +3,21 @@
 提取 充电电压，放电电压，充电电流，放电电流，充电温度，放电温度，充电内阻，放电内阻
 Qdlin，Tdlin
 """
-import pickle
-import random
-import torch
-import numpy as np
+import sys
+sys.path.append('/home/wangzaitian/work/2307/battery/BatteryLifePrediction')
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 from scipy.interpolate import interp1d
 from src.AEDataset import myDataset
+import pickle
+import random
+import torch
+import numpy as np
 
 First = 5
 MaxTIME = 40
-MaxPoint = 500
+# MaxPoint = 500
+MaxPoint = 1024
 
 LIFE = []
 
@@ -108,6 +111,7 @@ def process(datadict):
             qc = data['cycles'][str(j)]['Qc']
             qd = data['cycles'][str(j)]['Qd']
             if np.max(time) > 4 * MaxTIME or np.max(time) < 0.3 * MaxTIME:  # 删除时间过大的循环
+                print(j)
                 continue
 
             c, v, t, time, qc, qd = keep_increasing_np(c, v, t, time, qc, qd)
@@ -208,8 +212,10 @@ def gen_dataset(data, name):
     print('waiting..')
     window, shift = 100, 10  # 窗口大小和移动步长
 
-    feature1 = ['discharge_voltage', 'discharge_current', 'discharge_Q', 'delta_V', 'delta_Q']
-
+    # feature1 = ['charge_voltage', 'charge_Q', 'charge_current', 'charge_time', 'charge_temperature', 'discharge_voltage', 'discharge_Q', 'discharge_current', 'discharge_time', 'discharge_temperature']
+    feature1 = ['discharge_voltage', 'discharge_Q', 'discharge_current', 'discharge_time', 'discharge_temperature', 'ir', 'delta_Q', 'delta_V']
+    feature1 = ['discharge_voltage', 'discharge_Q', 'discharge_current', 'discharge_time', 'discharge_temperature']
+    feature1 = ['charge_voltage', 'charge_Q', 'charge_current', 'charge_time', 'charge_temperature', 'discharge_voltage', 'discharge_Q', 'discharge_current', 'discharge_time', 'discharge_temperature', 'ir', 'delta_Q', 'delta_V']
     feature2 = ['delta_v_var']
 
     print("｜{}｜{}".format(feature1, feature2))
@@ -273,8 +279,8 @@ def gen_dataset(data, name):
 
 if __name__ == '__main__':
     print('process data...')
-    path = '../../../data/dataset_7.pkl'
+    path = 'dataset/pkl_data/FastCharge/dataset_08250910.pkl'
     print(path.split('/')[-1])
-    dataset = pickle.load(open('dataset.pkl', 'rb'))
+    dataset = pickle.load(open('dataset/pkl_data/FastCharge/dataset.pkl', 'rb'))
     del dataset[15]
     gen_dataset(process(dataset), path)

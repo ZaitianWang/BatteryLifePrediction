@@ -1,9 +1,13 @@
+from os import device_encoding
+import sys
+sys.path.append('/home/wangzaitian/work/2307/battery/BatteryLifePrediction')
+
+from utils import *
 import argparse
 import random
 
 from torch.utils.data import DataLoader
 from layer.Net import *
-from utils import *
 import time
 
 torch.set_num_threads(1)
@@ -48,6 +52,7 @@ def generate_train_data(batch, label):
 
 def train(nni_params, dir_path):
     device = 'cuda:' + str(nni_params['cuda_index']) if torch.cuda.is_available() else 'cpu'
+    # device = 'cpu'
     dir_path = dir_path + get_date_time_second_string()
     os.mkdir(dir_path)
     logger = init_log(dir_path + '/predict.log')
@@ -69,10 +74,11 @@ def train(nni_params, dir_path):
                               batch_size=nni_params['batch_size'],
                               drop_last=False)
     # model = torch.compile(JoinModel(train_dataset.summary_len, train_dataset.cycle_len).to(device))
-    model = JoinModel(train_dataset.summary_len, train_dataset.cycle_len).to(device)
-    state_dict = torch.load("../save/cl_model.pt")
-    new_state_dict = {key.replace('_orig_mod.', ''): value for key, value in state_dict.items()}
-    model.load_state_dict(new_state_dict)
+    # model = JoinModel(train_dataset.cycle_len).to(device) # my main transformer model
+    model = CNN(train_dataset.cycle_len).to(device) # my CNN model
+    # state_dict = torch.load("../save/cl_model.pt")
+    # new_state_dict = {key.replace('_orig_mod.', ''): value for key, value in state_dict.items()}
+    # model.load_state_dict(new_state_dict)
     model = torch.compile(model)
 
     print("loading data form ", nni_params['dataset_path'])
@@ -87,7 +93,9 @@ def train(nni_params, dir_path):
         for step, batch in enumerate(loader):
             x1, x2, y = batch
             x1, x2, y = x1.to(device), x2.to(device), y[:, -1].to(device)
-            y_pred = model(x1, y)
+            # print(x1.shape, x2.shape, y.shape)
+            y_pred = model(x1)
+            # y_pred = model(x1, y)
             loss = mape(actual=y, pred=y_pred)
             total_loss.append(loss.item())
             optimizer.zero_grad()
@@ -118,7 +126,8 @@ def evaluate_early(args, loader, model):
         for step, batch in enumerate(loader):
             x1, x2, y = batch
             x1, x2, y = x1.to(device), x2.to(device), y.to(device)
-            y_pred = model(x1, x2).cpu().tolist()
+            # y_pred = model(x1, x2).cpu().tolist()
+            y_pred = model(x1).cpu().tolist()
             label_.extend(y.tolist())
             predictions.extend(y_pred)
 
@@ -156,7 +165,8 @@ def evaluate_RUL(args, loader, model):
         for step, batch in enumerate(loader):
             x1, x2, y = batch
             x1, x2, y = x1.to(device), x2.to(device), y[:, -1].to(device)
-            y_pred = model(x1, x2).cpu().tolist()
+            # y_pred = model(x1, x2).cpu().tolist()
+            y_pred = model(x1).cpu().tolist()
             label_.extend(y.tolist())
             predictions.extend(y_pred)
     er = mape(pred=torch.tensor(predictions), actual=torch.tensor(label_)).item() * 100
@@ -166,11 +176,13 @@ def evaluate_RUL(args, loader, model):
 def get_parameters():
     parser = argparse.ArgumentParser(description='Battery Life Predict')
     parser.add_argument('--lr', type=float, default=3e-5)
-    parser.add_argument('--cuda_index', type=int, default=7)
-    parser.add_argument('--epoch', type=int, default=1000)
-    parser.add_argument('--batch_size', type=int, default=40)
-    parser.add_argument('--dataset_path', type=str, default='../data/dataset_2.pkl')
-    parser.add_argument('--path', type=str, default='../save/')
+    parser.add_argument('--cuda_index', type=int, default=0)
+    parser.add_argument('--epoch', type=int, default=500)
+    parser.add_argument('--batch_size', type=int, default=32)
+    # parser.add_argument('--dataset_path', type=str, default='dataset/pkl_data/FastCharge/d&c_no_split_data.pkl')
+    # parser.add_argument('--dataset_path', type=str, default='dataset/pkl_data/FastCharge/dc_split_d_data.pkl')    
+    parser.add_argument('--dataset_path', type=str, default='dataset/pkl_data/FastCharge/dataset_08240730.pkl')
+    parser.add_argument('--path', type=str, default='save/')
     parser.add_argument('--d_model', type=int, default=32)
     # parser.add_argument('--pretrain_epoch', type=int, default=10)
     args, _ = parser.parse_known_args()
