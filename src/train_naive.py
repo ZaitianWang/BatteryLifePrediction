@@ -74,8 +74,8 @@ def train(nni_params, dir_path):
                               batch_size=nni_params['batch_size'],
                               drop_last=False)
     # model = torch.compile(JoinModel(train_dataset.summary_len, train_dataset.cycle_len).to(device))
-    # model = JoinModel(train_dataset.cycle_len).to(device) # my main transformer model
-    model = CNN(train_dataset.cycle_len).to(device) # my CNN model
+    model = JoinModel(train_dataset.cycle_len).to(device) # my main transformer model
+    # model = CNN(train_dataset.cycle_len).to(device) # my CNN model
     # state_dict = torch.load("../save/cl_model.pt")
     # new_state_dict = {key.replace('_orig_mod.', ''): value for key, value in state_dict.items()}
     # model.load_state_dict(new_state_dict)
